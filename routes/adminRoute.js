@@ -1,45 +1,16 @@
-const express = require('express'); //third party
-const Admin = require('../models/admin')
+const express = require("express");
 const router = express.Router();
+const userController = require("../controller/userController")
+const auth = require('../middleware/auth')
 
 
-
-
-router.post('/insert', function(req, res){
-    const me = new Admin(req.body);
-    console.log(req.body);
-    me.save().then((d)=>{
-        res.send(d)
-    }).catch((e)=>{
-        res.send(e)
-    });
-
-})
-
-router.get('/display', function(req,res){
-    //select * from product
-    Admin.find().then(function(data){
-        res.send(data)
-        // console.log(data)
-    })
-})
-
-//delete product
-router.delete('/delete/:id', function(req,res){
-
-     const id = req.params.id;
-     Admin.deleteOne({_id : id}).then(function(){
-         res.send("Deleted")
-     });
-})
-
-//update products
-router.put('/update/:id', function(req,res){
-    const id = req.params.id; 
-    const name1 = req.body.name;
-    Admin.updateOne({_id : id}, {name : name1}).then(function(){
-        res.send("Updated")
-    })
-
-})
-module.exports = router;
+router.post("/adminlogin", userController.login)
+router.get("/admincheckLogin",auth,userController.checklogin)
+router.post("/createAdmin",userController.addUser)
+router.get("/findAdmin",userController.findUser)
+router.get("/findAdminById/:_id",userController.findUserById)
+router.delete("/deleteAdmin/:_id",userController.deleteUserById)
+router.put("/updateAdmin/:_id",auth,userController.updateUser)
+router.get("/getAdminbyemail/:email",userController.checkemail)
+router.delete("/logoutAdmin",auth,userController.logout)
+module.exports = router

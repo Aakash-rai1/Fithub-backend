@@ -1,14 +1,23 @@
-const express= require('express');
-const bodyParser = require('body-parser');
-const db = require('./database/database');
-const route = require('./routes/adminRoute')
-// const route = require('./routes/userRoute')
+require("./database/database")
+const cors = require("cors")
+const express = require('express')
+const bodyparser = require("body-parser")
+const path = require("path");
+const app = express()
+const publicdirectory= path.join(__dirname,'public');
+app.use(express.static(publicdirectory));
+
+//Routers
+const UserRoute = require("./routes/userRoute")
+const AdminRoute = require("./routes/adminRoute")
+
+//parse json data in form body client UI
+app.use(bodyparser.urlencoded({ extended: true }))
+app.use(cors())
+app.use(bodyparser.json())
+app.use(express.json())
+app.use(UserRoute)
+app.use(AdminRoute)
 
 
-const app= express();
-app.use(express.json());
-app.use(route);
-app.use(bodyParser.urlencoded({extended:false}));
-
-// app.use(db);
-app.listen(100);
+app.listen("3030")

@@ -1,47 +1,68 @@
-const mongoose= require('mongoose');
-
-const User= mongoose.model('User',{
-    name:{
+const mongoose = require('mongoose') //Databa base connection
+const jwt = require('jsonwebtoken') //Auth Token handle
+//attributes of database
+const user = new mongoose.Schema({
+    name: {
         type: String,
         require: true,
         trim: true
     },
-    uname:{
+    gender: {
         type: String,
         require: true,
         trim: true
     },
-    gender:{
+    age: {
         type: String,
         require: true,
         trim: true
     },
-    height:{
+    height: {
         type: String,
         require: true,
         trim: true
     },
-    weight:{
+    weight: {
         type: String,
         require: true,
         trim: true
     },
-    password:{
+    email: {
         type: String,
         require: true,
         trim: true
     },
-    image:{
+    password: {
         type: String,
         require: true,
         trim: true
     },
+  
     tokens: [{
         token: {
             type: String,
         }
     }]
 
-})
+});
 
-module.exports = User;
+// login crediantial check function
+user.statics.checkCrediantialsDb = async (email, password) => {
+    const userCheck = await users.findOne({ email: email, password: password })
+    return userCheck
+}
+
+// login token generate function
+user.methods.generateAuthToken = async function () {
+    const userAuth = this
+    const token = jwt.sign({ _id: userAuth._id.toString() }, 'thisismynewcourse')
+
+    console.log(token);
+    userAuth.tokens = userAuth.tokens.concat({ token: token })
+    await userAuth.save()
+    return token
+}
+
+// database model 
+const users = mongoose.model('User', user)
+module.exports = users
