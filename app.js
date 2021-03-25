@@ -1,23 +1,22 @@
-require("./database/database")
-const cors = require("cors")
-const express = require('express')
-const bodyparser = require("body-parser")
-const path = require("path");
-const app = express()
-const publicdirectory= path.join(__dirname,'public');
-app.use(express.static(publicdirectory));
+const express = require('express'); //third party
+const bodyParser = require('body-parser'); //core module
+const db = require('./db/db');
+const route = require('./routes/userRoute');
+const workout = require('./routes/workoutRoute')
+const admin= require('./routes/adminRoute')
+const path = require("path")
 
-//Routers
-const UserRoute = require("./routes/userRoute")
-const AdminRoute = require("./routes/adminRoute")
-
-//parse json data in form body client UI
-app.use(bodyparser.urlencoded({ extended: true }))
-app.use(cors())
-app.use(bodyparser.json())
-app.use(express.json())
-app.use(UserRoute)
-app.use(AdminRoute)
+const cors= require('cors');
 
 
-app.listen("3030")
+const app = express();
+app.use(express.json());
+app.use(cors());
+app.use(route);
+app.use(admin);
+app.use(workout);
+app.use(express.static(path.join(__dirname, '/media')));
+app.use(bodyParser.urlencoded({extended:false}));
+
+// app.use(db);
+app.listen(1500);
