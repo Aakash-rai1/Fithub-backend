@@ -8,9 +8,7 @@ const workout = mongoose.model('workout', {
         require:true,
     
     },
-    link:{
-    type:String
-    },
+    
     image:{
         type:String
     }

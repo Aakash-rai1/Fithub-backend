@@ -10,7 +10,7 @@ const auth = require('../middleware/auth')
 const jwt = require('jsonwebtoken')
 router.post('/user/add',
   [
-    check('email', "Invalid Emial Address ").isEmail(),
+    check('email', "Invalid Email Address ").isEmail(),
     check('fname', "You must enter fname").not().isEmpty()
 
   ],
@@ -90,7 +90,7 @@ router.post('/user/login', function (req, res) {
 
     })
     .catch()
-  console.log('successfully login')
+
 
 
 })

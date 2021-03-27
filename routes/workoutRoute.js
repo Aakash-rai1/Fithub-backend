@@ -26,10 +26,9 @@ router.post('/workout/add', upload.single('image'),
 
         const wname= req.body.wname
         const program= req.body.program
-        const link= req.body.link
         const image=req.body.image
         
-        const wo = new workout({wname : wname, program : program, link:link,image:req.file.filename});
+        const wo = new workout({wname : wname, program : program,image:req.file.filename});
         wo.save()
             .then(function(result){
                 // success insert
