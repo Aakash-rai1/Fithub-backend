@@ -110,14 +110,6 @@ router.get('/user/view/:id',  function (req, res) {
 
 })
 
-router.get('/user/display', function (req, res) {
-
-  user.find().then(function (data) {
-    res.send(data)
-
-  })
-})
-
 
 //single display
 router.get('/user/single/:id', function(req,res){
@@ -132,6 +124,14 @@ router.get('/user/single/:id', function(req,res){
   })
 })
 
+router.get('/user/display', function (req, res) {
+
+  user.find().then(function (data) {
+    res.send(data)
+
+  })
+})
+
 router.put('/user/update/:id', function (req, res) {
   console.log(req.body, req.params.id)
   const { fname } = req.body
@@ -142,7 +142,7 @@ router.put('/user/update/:id', function (req, res) {
     .catch(err => res.send({ message: 'failed to update' }))
 })
 
-router.delete('/user/delete/:id', function (req, res) {
+router.put('/user/delete/:id', function (req, res) {
   console.log(req.body, req.params.id)
 
   user.deleteOne({ _id: req.params.id })
