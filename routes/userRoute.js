@@ -132,17 +132,24 @@ router.get('/user/display', function (req, res) {
   })
 })
 
-router.put('/user/update/:id', function (req, res) {
-  console.log(req.body, req.params.id)
-  const { fname } = req.body
-  const { lname } = req.body
-  const { gender } = req.body
-  user.updateOne({ _id: req.params.id, $set: { fname, lname, gender } })
-    .then(suc => res.send({ mesage: 'user updated successfully' }))
-    .catch(err => res.send({ message: 'failed to update' }))
+
+
+
+
+
+router.put('/user/update/:id',(req,res)=>{
+  const id=req.params.id
+  const fname=req.body.fname
+  const lname=req.body.lname
+
+  user.updateOne({_id:id},{fname:fname,lname:lname}).then(function(){
+      res.status(200).json({success:true,msg:"Succesfully Updated"})
+  }).catch(function(e){
+      res.status(500).json({success:false})
+  })
 })
 
-router.put('/user/delete/:id', function (req, res) {
+router.delete('/user/delete/:id', function (req, res) {
   console.log(req.body, req.params.id)
 
   user.deleteOne({ _id: req.params.id })
