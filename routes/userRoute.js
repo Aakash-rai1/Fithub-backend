@@ -96,19 +96,19 @@ router.post('/user/login', function (req, res) {
 })
 
 
-router.get('/user/view/:id',  function (req, res) {
-  const id = req.params.id
-  user.findOne({ _id: id })
-    .then(function (data) {
-      console.log(data)
-      res.status(200).json({ success: true, data: data });
+// router.get('/user/view/:id',  function (req, res) {
+//   const id = req.params.id
+//   user.findOne({ _id: id })
+//     .then(function (data) {
+//       console.log(data)
+//       res.status(200).json({ success: true, data: data });
 
-    })
-    .catch(function (e) {
-      res.status(201).json({ success: false, message: "here" })
-    })
+//     })
+//     .catch(function (e) {
+//       res.status(201).json({ success: false, message: "here" })
+//     })
 
-})
+// })
 
 
 //single display
@@ -124,6 +124,8 @@ router.get('/user/single/:id', function(req,res){
   })
 })
 
+
+
 router.get('/user/display', function (req, res) {
 
   user.find().then(function (data) {
@@ -138,7 +140,7 @@ router.get('/user/display', function (req, res) {
 
 
 router.put('/user/update/:id',(req,res)=>{
-  const id=req.params.id
+  const id=req.body.id
   const fname=req.body.fname
   const lname=req.body.lname
 

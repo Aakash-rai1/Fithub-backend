@@ -86,4 +86,29 @@ router.post('/admin/login', function (req, res) {
   
   })
 
+
+  //single display
+router.get('/admin/single/:id', function(req,res){
+  const id = req.params.id;  
+  admin.findOne({_id : id })
+  .then(function(data){
+      res.status(200).json(data);
+  })
+
+  .catch(function(e){
+      res.status(500).json({message:e})
+  })
+})
+
+
+
+router.get('/admin/display', function (req, res) {
+
+  admin.find().then(function (data) {
+    res.send(data)
+
+  })
+})
+
+
 module.exports = router;
