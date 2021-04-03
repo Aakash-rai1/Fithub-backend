@@ -111,4 +111,27 @@ router.get('/admin/display', function (req, res) {
 })
 
 
+//update
+router.put('/admin/update/:id',(req,res)=>{
+  const id=req.body.id
+  const fname=req.body.fname
+  const lname=req.body.lname
+
+  admin.updateOne({_id:id},{fname:fname,lname:lname}).then(function(){
+      res.status(200).json({success:true,msg:"Admin Succesfully Updated"})
+  }).catch(function(e){
+      res.status(500).json({success:false})
+  })
+})
+
+
+//delete
+router.delete('/admin/delete/:id', function (req, res) {
+  console.log(req.body, req.params.id)
+
+  admin.deleteOne({ _id: req.params.id })
+    .then(suc => res.send({ mesage: 'Admin deleted successfully' }))
+    .catch(err => res.send({ message: 'failed to delete admin' }))
+})
+
 module.exports = router;
