@@ -25,7 +25,12 @@ const user = mongoose.model('user', {
     },
     password:{
     type:String
-}
+},
+tokens: [{
+    token: {
+        type: String,
+    }
+}]
 })
 
 module.exports = user;

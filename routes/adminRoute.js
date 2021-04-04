@@ -40,50 +40,40 @@ router.post('/admin/add',
                 // success insert
                 res.status(201).json({success: true,
                     message : "Admin Registered success"});
-                    console.log('success')
+                    console.log('Admin Registered')
 
             })
             .catch(function(err){
                 res.status(500).json({success: false,
                     message : err})
             });
-            console.log("Sucessfully Registered");
+            
         })
 
     }
 
 })
 
-router.post('/admin/login', function (req, res) {
+router.post('/admin/login', async function (req, res) {
+  try{
     const email = req.body.email
     const password = req.body.password
-  
-    admin.findOne({ email: email })
-      .then(function (userData) {
-        // if(userData==null){
-        //     return res.status(403).json({success: false, message : "Invalid User!!"})
-        // }
-        bcrypt.compare(password, userData.password, function (err, result) {
-          if (result == false) {
-            return res.status(403).json({ success: false, message: "Invalid Admin!!" })
-          }
-          //   res.send("authenticated!!!")
-          const token = jwt.sign({ userId: userData._id }, 'secretkey');
-          console.log(userData._id)
-          res.status(200).json({
-            success: true,
-            message: "admin login success",
-            token: token,
-            id: userData._id
-          })
-  
-        })
-  
+    const Users = await admin.checkCrediantialsDb(email,
+      password)
+  const token = await Users.generateAuthToken()
+      res.status(200).json({
+        success: true,
+        message: "admin login success",
+        token: token,
+        id: Users._id
       })
-      .catch()
-  
-  
-  
+    }
+    catch(e){
+      res.status(200).json({
+        success:false,
+        message:"invalid credential"
+      })
+    }
   })
 
 

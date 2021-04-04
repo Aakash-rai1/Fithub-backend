@@ -126,11 +126,10 @@ router.get('/user/single/:id', function(req,res){
 
 
 
-router.get('/user/display', function (req, res) {
+router.get('/user/display' ,auth.verifyAdmin, function (req, res) {
 
   user.find().then(function (data) {
-    res.send(data)
-
+    res.send({data:data,success:true})
   })
 })
 
