@@ -8,6 +8,8 @@ const { request } = require('http');
 const { resolveSoa } = require('dns');
 const auth = require('../middleware/auth')
 const jwt = require('jsonwebtoken')
+
+
 router.post('/user/add',
   [
     check('email', "Invalid Email Address ").isEmail(),
@@ -63,37 +65,60 @@ router.post('/user/add',
   })
 
 //login >------
-router.post('/user/login', function (req, res) {
-  const email = req.body.email
-  const password = req.body.password
+// router.post('/user/login', async function (req, res) {
+//   try{
+//   const email = req.body.email
+//   const password = req.body.password
+//   const Users = await user.checkCrediantialsDb(email,
+//       password)
+//       const token = await Users.generateAuthToken()
+//       res.status(200).json({
+//         success: true,
+//         message: "User login successful",
+//         token: token,
+//         id: Users._id
+//       })
+//     }
+//     catch(e){
+//       res.status(200).json({
+//         success:false,
+//         message:"invalid credential"
+//       })
+//     }
+//   })
 
-  user.findOne({ email: email })
-    .then(function (userData) {
-      // if(userData==null){
-      //     return res.status(403).json({success: false, message : "Invalid User!!"})
-      // }
-      bcrypt.compare(password, userData.password, function (err, result) {
-        if (result == false) {
-          return res.status(403).json({ success: false, message: "Invalid User!!" })
-        }
-        //   res.send("authenticated!!!")
-        const token = jwt.sign({ userId: userData._id }, 'secretkey');
-        console.log(userData._id)
-        res.status(200).json({
-          success: true,
-          message: "login success",
-          token: token,
-          id: userData._id
-        })
-
+router.post('/user/login', async function (req, res) {
+  try{
+    const email = req.body.email
+    const password = req.body.password
+    const Users = await user.checkCrediantialsDb(email,
+      password)
+  const token = await Users.generateAuthToken()
+      res.status(200).json({
+        success: true,
+        message: "user login success",
+        token: token,
+        id: Users._id
       })
+    }
+    catch(e){
+      res.status(200).json({
+        success:false,
+        message:"invalid credential"
+      })
+    }
+  })
 
-    })
-    .catch()
 
 
-
-})
+  router.get('/checkuserlogin',auth.verifyUser, async function(req,res) {
+    // res.send(req.data)
+   
+        res.send(req.user)
+    
+    
+   
+  })
 
 
 // router.get('/user/view/:id',  function (req, res) {
@@ -116,11 +141,11 @@ router.get('/user/single/:id', function(req,res){
   const id = req.params.id;  
   user.findOne({_id : id })
   .then(function(data){
-      res.status(200).json(data);
+      res.status(200).json({success: true,data: data});
   })
 
   .catch(function(e){
-      res.status(500).json({message:e})
+      res.status(500).json({success: false, message:e})
   })
 })
 
@@ -206,6 +231,28 @@ router.put('/user/:id/photo', function (req, res) {
     success: true,
     data: file.name,
   });
+})
+
+//logout
+router.delete('/user/logout',(req, res)=>{
+  user.findById(req.user._id, function(err, userdata){
+      console.log(req.token)
+    var  deletetoken = {token : req.token}
+    var  delete1 = userdata.tokens.splice(userdata.tokens.indexOf(deletetoken), 1);
+      userdata.tokens= userdata.tokens.pull(delete1[0]._id)
+      console.log(userdata.tokens)
+      userdata.save((err, data) => {
+          if(err) return res.send({
+              success : false,
+              message : err.message
+          })
+      })
+      return res.send({
+          success : true,
+          message : "Logged Out",
+
+      })
+  })
 })
 
 

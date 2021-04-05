@@ -6,11 +6,13 @@ const bcrypt = require('bcryptjs')
 const {check, validationResult} = require('express-validator');
 const { request } = require('http');
 const { resolveSoa } = require('dns');
+const auth = require('../middleware/auth')
 const jwt = require('jsonwebtoken')
+
 
 router.post('/admin/add',
 [
-    check('email', "Invalid Emial Address ").isEmail(),
+    check('email', "Invalid Email Address ").isEmail(),
     check('fname', "You must enter fname").not().isEmpty()
 
 ],
@@ -77,6 +79,16 @@ router.post('/admin/login', async function (req, res) {
   })
 
 
+  router.get('/checkAdmin',auth.verifyAdmin, async function(req,res) {
+    // res.send(req.data)
+   
+        res.send(req.user)
+    
+    
+   
+  })
+
+
   //single display
 router.get('/admin/single/:id', function(req,res){
   const id = req.params.id;  
@@ -122,6 +134,28 @@ router.delete('/admin/delete/:id', function (req, res) {
   admin.deleteOne({ _id: req.params.id })
     .then(suc => res.send({ mesage: 'Admin deleted successfully' }))
     .catch(err => res.send({ message: 'failed to delete admin' }))
+})
+
+//admin
+router.delete('/admin/logout',(req, res)=>{
+  admin.findById(req.user._id, function(err, userdata){
+      console.log(req.token)
+    var  deletetoken = {token : req.token}
+    var  delete1 = userdata.tokens.splice(userdata.tokens.indexOf(deletetoken), 1);
+      userdata.tokens= userdata.tokens.pull(delete1[0]._id)
+      console.log(userdata.tokens)
+      userdata.save((err, data) => {
+          if(err) return res.send({
+              success : false,
+              message : err.message
+          })
+      })
+      return res.send({
+          success : true,
+          message : "Logged Out",
+
+      })
+  })
 })
 
 module.exports = router;
