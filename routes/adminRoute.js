@@ -56,7 +56,7 @@ router.post('/admin/add',
 
 })
 
-router.post('/admin/login', async function (req, res) {
+router.post('/admin/login',  async function (req, res) {
   try{
     const email = req.body.email
     const password = req.body.password
@@ -71,7 +71,9 @@ router.post('/admin/login', async function (req, res) {
       })
     }
     catch(e){
+      const token=''
       res.status(200).json({
+        token:token,
         success:false,
         message:"invalid credential"
       })
