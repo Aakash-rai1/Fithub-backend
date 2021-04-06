@@ -138,7 +138,7 @@ router.delete('/admin/delete/:id', function (req, res) {
     .catch(err => res.send({ message: 'failed to delete admin' }))
 })
 
-//admin
+//admin logout
 router.delete('/admin/logout',(req, res)=>{
   admin.findById(req.user._id, function(err, userdata){
       console.log(req.token)

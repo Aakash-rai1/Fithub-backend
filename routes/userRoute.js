@@ -7,7 +7,11 @@ const { check, validationResult } = require('express-validator');
 const { request } = require('http');
 const { resolveSoa } = require('dns');
 const auth = require('../middleware/auth')
+const upload= require('../middleware/upload')
 const jwt = require('jsonwebtoken')
+
+
+var ObjectID = require('mongodb').ObjectID;
 
 
 router.post('/user/add',
@@ -165,7 +169,7 @@ router.get('/user/display' ,auth.verifyAdmin, function (req, res) {
 
 
 
-router.put('/user/update/:id',(req,res)=>{
+router.put('/user/updatea/:id',(req,res)=>{
   const id=req.body.id
   const fname=req.body.fname
   const lname=req.body.lname
@@ -177,6 +181,18 @@ router.put('/user/update/:id',(req,res)=>{
   })
 })
 
+
+router.put('/user/update/:_id',auth.verifyUser, function(req,res){
+  console.log(req.body);
+  console.log(req.params._id)
+  user.findOneAndUpdate({_id:ObjectID(req.params._id)}, req.body).then(function () {
+      res.status(200).send().catch(function (e) {
+          res.status(400).send()
+      })
+  })
+
+  })
+
 router.delete('/user/delete/:id', function (req, res) {
   console.log(req.body, req.params.id)
 
@@ -184,6 +200,24 @@ router.delete('/user/delete/:id', function (req, res) {
     .then(suc => res.send({ mesage: 'deleted successfully' }))
     .catch(err => res.send({ message: 'failed to delete' }))
 })
+
+router.put('/updateProfile/:_id',auth.verifyUser,upload.single('image'),function(req,res){
+  try{
+        const User = {
+            image: req.file.filename
+        }
+        user.findOneAndUpdate({_id:ObjectID(req.params._id)}, User).then(function () {
+            res.status(200).send().catch(function (e) {
+                res.status(400).send()
+            })
+        })
+      }
+      catch{
+        console.log("profile pic not updated")
+  
+      }
+    
+  })
 
 router.put('/user/:id/photo', function (req, res) {
   const user = console.log(req.params.id)

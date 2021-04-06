@@ -3,6 +3,7 @@ const bodyParser = require('body-parser'); //core module
 const db = require('./db/db');
 const route = require('./routes/userRoute');
 const workout = require('./routes/workoutRoute')
+const video = require('./routes/videoRoute')
 const admin= require('./routes/adminRoute')
 const path = require("path")
 
@@ -15,6 +16,7 @@ app.use(cors());
 app.use(route);
 app.use(admin);
 app.use(workout);
+app.use(video);
 app.use(express.static(path.join(__dirname, '/media')));
 app.use(bodyParser.urlencoded({extended:false}));
 

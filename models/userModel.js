@@ -4,43 +4,49 @@ const jwt = require('jsonwebtoken') //Auth Token handle
 const bcrypt = require('bcryptjs')
 //Third Party
 const user = new mongoose.Schema({
-    fname:{
-        type:String
+    fname: {
+        type: String
     },
-    lname:{
-        type:String
+    lname: {
+        type: String
     },
-    height:{
-        type:String
+    height: {
+        type: String
     },
-    weight:{
-        type:String
+    weight: {
+        type: String
     },
-    gender:{
-        type:String
+    gender: {
+        type: String
     },
-    age:{
-        type:String
+    age: {
+        type: String
     },
-    email:{
-        type:String,
-        require:true,
-        unique : true
-    },
-    password:{
-    type:String
-},
-tokens: [{
-    token: {
+    email: {
         type: String,
-    }
-}]
+        require: true,
+        unique: true
+    },
+    password: {
+        type: String
+    },
+
+    image: {
+        type: String,
+        trim: true,
+        default: 'no-image'
+    },
+    tokens: [{
+        token: {
+            type: String,
+        }
+    }]
 })
 
 user.statics.checkCrediantialsDb = async (email, password) => {
-   
-   
-    const user = await users.findOne({email: email} )
+
+
+    const user = await users.findOne({ email: email })
     if (!user) {
         console.log('user not found')
     }
