@@ -7,8 +7,11 @@ const { check, validationResult } = require('express-validator');
 const { request } = require('http');
 const { resolveSoa } = require('dns');
 const auth = require('../middleware/auth')
-const upload= require('../middleware/upload')
+const upload = require('../middleware/andupload')
+const upload1 = require('../middleware/upload')
+
 const jwt = require('jsonwebtoken')
+const multer=require('multer')
 
 
 var ObjectID = require('mongodb').ObjectID;
@@ -68,63 +71,88 @@ router.post('/user/add',
 
   })
 
-//login >------
-// router.post('/user/login', async function (req, res) {
-//   try{
-//   const email = req.body.email
-//   const password = req.body.password
-//   const Users = await user.checkCrediantialsDb(email,
-//       password)
-//       const token = await Users.generateAuthToken()
-//       res.status(200).json({
-//         success: true,
-//         message: "User login successful",
-//         token: token,
-//         id: Users._id
-//       })
-//     }
-//     catch(e){
-//       res.status(200).json({
-//         success:false,
-//         message:"invalid credential"
-//       })
-//     }
-//   })
 
 router.post('/user/login', async function (req, res) {
   try{
-    const email = req.body.email
-    const password = req.body.password
-    const Users = await user.checkCrediantialsDb(email,
+  const email = req.body.email
+  const password = req.body.password
+  const Users = await user.checkCrediantialsDb(email,
       password)
-  const token = await Users.generateAuthToken()
+      const token = await Users.generateAuthToken()
       res.status(200).json({
         success: true,
-        message: "user login success",
+        message: "User login successful",
         token: token,
         id: Users._id
       })
     }
     catch(e){
-      const token=''
       res.status(200).json({
-        token:token,
         success:false,
         message:"invalid credential"
       })
     }
   })
 
+router.post('/user/login', async function (req, res) {
+  try {
+    console.log.req.body
+    const email = req.body.email
+    const password = req.body.password
+    const Users = await user.checkCrediantialsDb(email,
+      password)
+    const token = await Users.generateAuthToken()
+    res.status(200).json({
+      success: true,
+      message: "user login success",
+      token: token,
+      id: Users._id
+    })
+  }
+  catch (e) {
+    const token = ''
+    res.status(200).json({
+      token: token,
+      success: false,
+      message: "invalid credential"
+    })
+  }
+})
 
 
-  router.get('/checkuserlogin',auth.verifyUser, async function(req,res) {
-    // res.send(req.data)
-   
-        res.send(req.user)
-    
-    
-   
-  })
+// router.post('/user/login', (req, res) => {
+//   const body = req.body;
+//   Register.findOne({ email: body.email }).then(function (userData) {
+//       if (userData == null) {
+//           return res.status(201).json({ success: false, msg: "Invalid User!!" })
+//       }
+//       bcrypt.compare(body.password, userData.password, function (err, result) {
+//           if (result == false) {
+//               return res.status(201).json({ success: false, msg: "Invalid User!" })
+//           }
+//           Register.find({ email: req.body.email }).then(function (data) {
+//               const token = jwt.sign({ userId: userData._id }, 'secretkey');
+//               //console.log(data)
+//               res.status(200).json({ success: true, msg: "Login Successfull", token: token, data: data, id: userData._id })
+//           }).catch(function (e) {
+
+//           })
+//       })
+
+//   }).catch(function (e) {
+//       res.status(500).json({ success: false, msg: e })
+//   })
+// })
+
+
+router.get('/checkuserlogin', auth.verifyUser, async function (req, res) {
+  // res.send(req.data)
+
+  res.send(req.user)
+
+
+
+})
 
 
 // router.get('/user/view/:id',  function (req, res) {
@@ -143,55 +171,69 @@ router.post('/user/login', async function (req, res) {
 
 
 //single display
-router.get('/user/single/:id', function(req,res){
-  const id = req.params.id;  
-  user.findOne({_id : id })
-  .then(function(data){
-      res.status(200).json({success: true,data: data});
-  })
+router.get('/user/single/:id', function (req, res) {
+  const id = req.params.id;
+  user.findOne({ _id: id })
+    .then(function (data) {
+      console.log(data)
+      res.status(200).json({ success: true, data: data });
+    })
 
-  .catch(function(e){
-      res.status(500).json({success: false, message:e})
-  })
+    .catch(function (e) {
+      res.status(200).json({ success: false, message: "Some error" })
+    })
 })
 
 
 
-router.get('/user/display' ,auth.verifyAdmin, function (req, res) {
+
+router.get('/user/display', auth.verifyAdmin, function (req, res) {
 
   user.find().then(function (data) {
-    res.send({data:data,success:true})
+    res.send({ data: data, success: true })
   })
 })
 
+//admin update
+router.put('/user/updatea', (req, res) => {
+  const id = req.body._id
+  const fname = req.body.fname
+  const lname = req.body.lname
+  const email = req.body.email
+  user.updateOne({ _id: ObjectID(req.params._id) }, { fname: fname, lname: lname ,email:email}).then(function () {
+    res.status(200).json({ success: true, msg: "Succesfully Updated" })
+  }).catch(function (e) {
+    res.status(500).json({ success: false })
+  })
+})
 
+// web user update
+router.put('/user/update/:_id', auth.verifyUser, function (req, res) {
+  console.log(req.body);
+  console.log(req.params._id)
+  user.findOneAndUpdate({ _id: ObjectID(req.params._id) }, req.body).then(function () {
+    res.status(200).send().catch(function (e) {
+      res.status(400).send()
+    })
+  })
 
+})
 
-
-
-router.put('/user/updatea/:id',(req,res)=>{
+//admin side updaTE
+router.put('/user/updateadmin/:id',(req,res)=>{
   const id=req.body.id
   const fname=req.body.fname
   const lname=req.body.lname
 
   user.updateOne({_id:id},{fname:fname,lname:lname}).then(function(){
-      res.status(200).json({success:true,msg:"Succesfully Updated"})
+      res.status(200).json({success:true,msg:"user Succesfully Updated"})
   }).catch(function(e){
       res.status(500).json({success:false})
   })
 })
 
 
-router.put('/user/update/:_id',auth.verifyUser, function(req,res){
-  console.log(req.body);
-  console.log(req.params._id)
-  user.findOneAndUpdate({_id:ObjectID(req.params._id)}, req.body).then(function () {
-      res.status(200).send().catch(function (e) {
-          res.status(400).send()
-      })
-  })
 
-  })
 
 router.delete('/user/delete/:id', function (req, res) {
   console.log(req.body, req.params.id)
@@ -201,23 +243,23 @@ router.delete('/user/delete/:id', function (req, res) {
     .catch(err => res.send({ message: 'failed to delete' }))
 })
 
-router.put('/updateProfile/:_id',auth.verifyUser,upload.single('image'),function(req,res){
-  try{
-        const User = {
-            image: req.file.filename
-        }
-        user.findOneAndUpdate({_id:ObjectID(req.params._id)}, User).then(function () {
-            res.status(200).send().catch(function (e) {
-                res.status(400).send()
-            })
-        })
-      }
-      catch{
-        console.log("profile pic not updated")
-  
-      }
-    
-  })
+router.put('/updateProfile/:_id', auth.verifyUser, upload1.single('image'), function (req, res) {
+  try {
+    const User = {
+      image: req.file.filename
+    }
+    user.findOneAndUpdate({ _id: ObjectID(req.params._id) }, User).then(function () {
+      res.status(200).send().catch(function (e) {
+        res.status(400).send()
+      })
+    })
+  }
+  catch {
+    console.log("profile pic not updated")
+
+  }
+
+})
 
 router.put('/user/:id/photo', function (req, res) {
   const user = console.log(req.params.id)
@@ -270,27 +312,57 @@ router.put('/user/:id/photo', function (req, res) {
 })
 
 //logout
-router.delete('/user/logout',(req, res)=>{
-  user.findById(req.user._id, function(err, userdata){
-      console.log(req.token)
-    var  deletetoken = {token : req.token}
-    var  delete1 = userdata.tokens.splice(userdata.tokens.indexOf(deletetoken), 1);
-      userdata.tokens= userdata.tokens.pull(delete1[0]._id)
-      console.log(userdata.tokens)
-      userdata.save((err, data) => {
-          if(err) return res.send({
-              success : false,
-              message : err.message
-          })
+router.delete('/user/logout', (req, res) => {
+  user.findById(req.user._id, function (err, userdata) {
+    console.log(req.token)
+    var deletetoken = { token: req.token }
+    var delete1 = userdata.tokens.splice(userdata.tokens.indexOf(deletetoken), 1);
+    userdata.tokens = userdata.tokens.pull(delete1[0]._id)
+    console.log(userdata.tokens)
+    userdata.save((err, data) => {
+      if (err) return res.send({
+        success: false,
+        message: err.message
       })
-      return res.send({
-          success : true,
-          message : "Logged Out",
+    })
+    return res.send({
+      success: true,
+      message: "Logged Out",
 
-      })
+    })
+  })
+})
+
+// android
+router.put("/update/Profile/:id", auth.verifyUser, (req, res) => {
+  const id = req.params.id
+  console.log("here")
+
+  upload(req, res, function (err) {
+      if (err instanceof multer.MulterError) {
+          // console.log("here")
+
+          res.status(201).json({ success: false, msg: "error" })
+      }
+      else if (err) {
+          res.status(201).json({ success: false, msg: "not gonna happen" })
+    console.log("aayush")
+
+      }
+      else {
+          const id = req.params.id
+          image = req.file.filename
+          console.log(image)
+          user.updateOne({ _id: id }, { image: image }).then(function (data) {
+            console.log(data)
+              res.status(200).json({ success: true, msg: "Done" })
+          }).catch(function (e) {
+              res.status(201).json({ success: false, msg: "not register" })
+          })
+      }
   })
 })
 
 
 
-module.exports = router;
+module.exports = router;0

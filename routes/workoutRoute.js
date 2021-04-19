@@ -62,10 +62,11 @@ router.get('/workout/display', function(req,res){
 
 //single display
 router.get('/workout/single/:id', function(req,res){
-    const id = req.params.id;  
-    workout.findOne({_id : id })
+    const id = req.params.id;
+    // finone  **find  
+    workout.find({_id : id }) 
     .then(function(data){
-        res.status(200).json(data);
+        res.status(200).json({ success: true, data: data });
     })
  
     .catch(function(e){
